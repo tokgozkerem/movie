@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Recommendation System - Data Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --background-color: #ecf0f1;
+        --card-background: #ffffff;
+        --text-color: #2c3e50;
+        --border-color: #bdc3c7;
+      }
+
+      body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px 0;
+      }
+
+      .chart-container {
+        margin: 20px 0;
+        padding: 25px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background-color: var(--card-background);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .chart-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .stats-card {
+        margin: 10px 0;
+        padding: 20px;
+        background-color: var(--card-background);
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .section-title {
+        margin: 30px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 3px solid var(--secondary-color);
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+
+      .nav-pills {
+        margin-bottom: 20px;
+        background-color: var(--card-background);
+        padding: 10px;
+        border-radius: 50px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-pills .nav-link {
+        border-radius: 25px;
+        padding: 10px 20px;
+        color: var(--text-color);
+        transition: all 0.3s ease;
+      }
+
+      .nav-pills .nav-link.active {
+        background-color: var(--secondary-color);
+        color: white;
+      }
+
+      .nav-pills .nav-link:not(.active):hover {
+        background-color: rgba(52, 152, 219, 0.1);
+      }
+
+      .metric-value {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-label {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        opacity: 0.8;
+      }
+
+      .academic-explanation {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: rgba(52, 152, 219, 0.05);
+        border-left: 4px solid var(--secondary-color);
+        border-radius: 0 4px 4px 0;
+      }
+
+      .academic-explanation ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 1rem;
+      }
+
+      .academic-explanation li {
+        margin-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        position: relative;
+      }
+
+      .academic-explanation li:before {
+        content: "•";
+        color: var(--secondary-color);
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+      }
+
+      .header-section {
+        background-color: var(--card-background);
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .back-button {
+        padding: 10px 20px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+      }
+
+      .back-button:hover {
+        transform: translateX(-5px);
+      }
+
+      .tab-content {
+        background-color: var(--card-background);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .analysis-icon {
+        font-size: 1.5rem;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="mb-0">Data Mining Analysis Report</h1>
+          <a href="/" class="btn btn-outline-primary back-button">
+            <i class="fas fa-arrow-left"></i> Back to Home
+          </a>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-film mb-3 analysis-icon"></i>
+            <div class="metric-value">{{ stats.total_movies }}</div>
+            <div class="metric-label">Total Movies</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-star mb-3 analysis-icon"></i>
+            <div class="metric-value">{{ stats.total_ratings }}</div>
+            <div class="metric-label">Total Ratings</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-users mb-3 analysis-icon"></i>
+            <div class="metric-value">{{ stats.total_users }}</div>
+            <div class="metric-label">Total Users</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-chart-line mb-3 analysis-icon"></i>
+            <div class="metric-value">
+              {{ "%.2f"|format(stats.avg_rating) }}
+            </div>
+            <div class="metric-label">Average Rating</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis Tabs -->
+      <ul class="nav nav-pills" id="analysisTabs" role="tablist">
+        <li class="nav-item">
+          <a
+            class="nav-link active"
+            data-bs-toggle="pill"
+            href="#genreAnalysis"
+          >
+            <i class="fas fa-tags analysis-icon"></i>Genre Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#timeAnalysis">
+            <i class="fas fa-clock analysis-icon"></i>Temporal Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#userAnalysis">
+            <i class="fas fa-users analysis-icon"></i>User Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#performanceMetrics">
+            <i class="fas fa-chart-bar analysis-icon"></i>Performance Metrics
+          </a>
+        </li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Genre Analysis -->
+        <div class="tab-pane fade show active" id="genreAnalysis">
+          <h3 class="section-title">Genre Distribution Analysis</h3>
+
+          <div class="chart-container">
+            <h4 class="mb-3">Average Ratings by Genre</h4>
+            <div id="genreChart"></div>
+          </div>
+
+          <div class="chart-container">
+            <h4 class="mb-3">Genre Correlation Matrix</h4>
+            <div id="genreCorrelationChart"></div>
+          </div>
+
+          <div class="chart-container">
+            <h4 class="mb-3">Genre Rating Trends Over Time</h4>
+            <div id="genreRatingTrends"></div>
+          </div>
+
+          <div class="chart-container">
+            <h4 class="mb-3">Genre Popularity Trends</h4>
+            <div id="genreCountTrends"></div>
+          </div>
+        </div>
+
+        <!-- Temporal Analysis -->
+        <div class="tab-pane fade" id="timeAnalysis">
+          <h3 class="section-title">Temporal Pattern Analysis</h3>
+
+          <div class="chart-container">
+            <h4 class="mb-3">Rating Trends Over Time</h4>
+            <div id="temporalChart"></div>
+          </div>
+        </div>
+
+        <!-- User Analysis -->
+        <div class="tab-pane fade" id="userAnalysis">
+          <h3 class="section-title">User Behavior Analysis</h3>
+
+          <div class="chart-container">
+            <h4 class="mb-3">User Rating Distribution</h4>
+            <div id="userBehaviorChart"></div>
+          </div>
+
+          <div class="chart-container">
+            <h4 class="mb-3">User Segments</h4>
+            <div id="segmentScatter"></div>
+          </div>
+
+          <div class="chart-container">
+            <h4 class="mb-3">Segment Characteristics</h4>
+            <div id="segmentRadar"></div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-12">
+              <h4 class="mb-3">Segment Profiles</h4>
+              <div id="segmentProfiles" class="stats-card">
+                <!-- Will be filled by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="tab-pane fade" id="performanceMetrics">
+          <h3 class="section-title">Model Performance Analysis</h3>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="stats-card">
+                <h4>MAE (Mean Absolute Error)</h4>
+                <p class="metric-value">
+                  {{ "%.4f"|format(stats.metrics.mae) }}
+                </p>
+                <div class="academic-explanation">
+                  <p class="text-muted">
+                    The Mean Absolute Error (MAE) quantifies the average
+                    magnitude of prediction errors across the recommendation
+                    system, where errors are the absolute differences between
+                    predicted and actual ratings. In the context of our 5-point
+                    rating scale:
+                  </p>
+                  <ul class="text-muted">
+                    <li>
+                      Current MAE: {{ "%.4f"|format(stats.metrics.mae) }}
+                      indicates an average deviation of predictions from actual
+                      ratings
+                    </li>
+                    <li>
+                      Interpretation: Lower values indicate better prediction
+                      accuracy
+                    </li>
+                    <li>
+                      Benchmark: Industry standard for movie recommendations
+                      typically ranges from 0.7 to 0.9
+                    </li>
+                    <li>Formula: MAE = (1/n) * Σ|actual - predicted|</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="stats-card">
+                <h4>RMSE (Root Mean Square Error)</h4>
+                <p class="metric-value">
+                  {{ "%.4f"|format(stats.metrics.rmse) }}
+                </p>
+                <div class="academic-explanation">
+                  <p class="text-muted">
+                    The Root Mean Square Error (RMSE) provides a quadratic
+                    scoring metric that gives higher weight to larger errors,
+                    making it particularly sensitive to outliers in the
+                    prediction model:
+                  </p>
+                  <ul class="text-muted">
+                    <li>
+                      Current RMSE: {{ "%.4f"|format(stats.metrics.rmse) }}
+                      represents the standard deviation of prediction errors
+                    </li>
+                    <li>
+                      Variance Analysis: The difference between RMSE and MAE ({{
+                      "%.4f"|format(stats.metrics.rmse - stats.metrics.mae) }})
+                      indicates error distribution variance
+                    </li>
+                    <li>
+                      Statistical Significance: Larger difference suggests
+                      presence of significant outliers in predictions
+                    </li>
+                    <li>Formula: RMSE = √[(1/n) * Σ(actual - predicted)²]</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-card mt-4">
+            <h4>Statistical Analysis: ANOVA Test Results</h4>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <p class="metric-value">
+                  {{ "%.4f"|format(stats.anova_results.f_statistic) }}
+                </p>
+                <h5>F-statistic</h5>
+                <div class="academic-explanation">
+                  <p class="text-muted">
+                    The F-statistic from our one-way ANOVA analysis measures the
+                    ratio of variance between movie genres to the variance
+                    within genres:
+                  </p>
+                  <ul class="text-muted">
+                    <li>
+                      Current F-value: {{
+                      "%.4f"|format(stats.anova_results.f_statistic) }}
+                      indicates the strength of genre effects
+                    </li>
+                    <li>
+                      Interpretation: Higher values suggest stronger genre-based
+                      rating patterns
+                    </li>
+                    <li>
+                      Statistical Power: Measures the robustness of genre-based
+                      rating differences
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <p class="metric-value">
+                  {{ "%.4f"|format(stats.anova_results.p_value) }}
+                </p>
+                <h5>P-value</h5>
+                <div class="academic-explanation">
+                  <p class="text-muted">
+                    The p-value quantifies the statistical significance of
+                    observed genre-based rating differences:
+                  </p>
+                  <ul class="text-muted">
+                    <li>
+                      Current p-value: {{
+                      "%.4f"|format(stats.anova_results.p_value) }}
+                    </li>
+                    <li>
+                      Significance: p < 0.05 indicates statistically significant
+                      genre effects
+                    </li>
+                    <li>
+                      Hypothesis Testing: Rejects null hypothesis of no genre
+                      effect when p < 0.05
+                    </li>
+                    <li>
+                      Confidence Level: {{ "%.2f"|format((1 -
+                      stats.anova_results.p_value) * 100) }}% confidence in
+                      genre effects
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Plotly configuration for better appearance
+      const plotlyConfig = {
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false,
+        modeBarButtonsToRemove: ['lasso2d', 'select2d']
+      };
+
+      const plotlyLayout = {
+        font: {
+          family: 'Segoe UI, sans-serif'
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: {
+          l: 50,
+          r: 50,
+          t: 50,
+          b: 50
+        }
+      };
+
+      try {
+        // Genre Plot
+        var genreData = {{ stats.genre_plot | tojson | safe }};
+        if (genreData && genreData.data) {
+          genreData.layout = {...genreData.layout, ...plotlyLayout};
+          Plotly.newPlot('genreChart', genreData.data, genreData.layout, plotlyConfig);
+        }
+
+        // Temporal Plot
+        var temporalData = {{ stats.temporal_plot | tojson | safe }};
+        if (temporalData && temporalData.data) {
+          temporalData.layout = {...temporalData.layout, ...plotlyLayout};
+          Plotly.newPlot('temporalChart', temporalData.data, temporalData.layout, plotlyConfig);
+        }
+
+        // User Behavior Plot
+        var userBehaviorData = {{ stats.user_behavior_plot | tojson | safe }};
+        if (userBehaviorData && userBehaviorData.data) {
+          userBehaviorData.layout = {...userBehaviorData.layout, ...plotlyLayout};
+          Plotly.newPlot('userBehaviorChart', userBehaviorData.data, userBehaviorData.layout, plotlyConfig);
+        }
+
+        // Genre Correlation Plot
+        var genreCorrelationData = {{ stats.genre_correlation_plot | tojson | safe }};
+        if (genreCorrelationData && genreCorrelationData.data) {
+          genreCorrelationData.layout = {...genreCorrelationData.layout, ...plotlyLayout};
+          Plotly.newPlot('genreCorrelationChart', genreCorrelationData.data, genreCorrelationData.layout, plotlyConfig);
+        }
+
+        // Genre Rating Trends Plot
+        var genreRatingTrendsData = {{ stats.genre_rating_trends | tojson | safe }};
+        if (genreRatingTrendsData && genreRatingTrendsData.data) {
+          genreRatingTrendsData.layout = {...genreRatingTrendsData.layout, ...plotlyLayout};
+          Plotly.newPlot('genreRatingTrends', genreRatingTrendsData.data, genreRatingTrendsData.layout, plotlyConfig);
+        }
+
+        // Genre Count Trends Plot
+        var genreCountTrendsData = {{ stats.genre_count_trends | tojson | safe }};
+        if (genreCountTrendsData && genreCountTrendsData.data) {
+          genreCountTrendsData.layout = {...genreCountTrendsData.layout, ...plotlyLayout};
+          Plotly.newPlot('genreCountTrends', genreCountTrendsData.data, genreCountTrendsData.layout, plotlyConfig);
+        }
+
+        // Segment Scatter Plot
+        var segmentScatterData = {{ stats.segment_scatter | tojson | safe }};
+        if (segmentScatterData && segmentScatterData.data) {
+          segmentScatterData.layout = {...segmentScatterData.layout, ...plotlyLayout};
+          Plotly.newPlot('segmentScatter', segmentScatterData.data, segmentScatterData.layout, plotlyConfig);
+        }
+
+        // Segment Radar Plot
+        var segmentRadarData = {{ stats.segment_radar | tojson | safe }};
+        if (segmentRadarData && segmentRadarData.data) {
+          segmentRadarData.layout = {...segmentRadarData.layout, ...plotlyLayout};
+          Plotly.newPlot('segmentRadar', segmentRadarData.data, segmentRadarData.layout, plotlyConfig);
+        }
+
+        // Segment Profiles
+        var segmentProfiles = {{ stats.segment_profiles | tojson | safe }};
+        if (segmentProfiles) {
+          var profilesHtml = '';
+          for (var segment in segmentProfiles) {
+            profilesHtml += `
+              <div class="mb-4">
+                <h5 class="mb-3">Segment ${segment} Characteristics</h5>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="small text-muted">Average Rating</div>
+                    <div class="h4">${segmentProfiles[segment].avg_rating.toFixed(2)}</div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="small text-muted">Rating Count</div>
+                    <div class="h4">${segmentProfiles[segment].rating_count.toFixed(0)}</div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="small text-muted">Standard Deviation</div>
+                    <div class="h4">${segmentProfiles[segment].rating_std.toFixed(2)}</div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="small text-muted">Unique Movies</div>
+                    <div class="h4">${segmentProfiles[segment].unique_movies.toFixed(0)}</div>
+                  </div>
+                </div>
+              </div>`;
+          }
+          document.getElementById('segmentProfiles').innerHTML = profilesHtml;
+        }
+      } catch (error) {
+        console.error('Chart creation error:', error);
+      }
+    </script>
+  </body>
+</html>

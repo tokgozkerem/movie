@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Recommendation System - Academic Analysis Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #1a237e;
+        --secondary-color: #0d47a1;
+        --accent-color: #2962ff;
+        --background-color: #f5f6fa;
+        --card-background: #ffffff;
+        --text-color: #2c3e50;
+        --border-color: #e3e3e3;
+      }
+
+      body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      }
+
+      .academic-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+      }
+
+      .analysis-card {
+        background: var(--card-background);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .analysis-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .metric-card {
+        background: var(--card-background);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--accent-color);
+      }
+
+      .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      .metric-label {
+        color: var(--text-color);
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .section-title {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--accent-color);
+      }
+
+      .analysis-description {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .chart-container {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .nav-pills .nav-link {
+        color: var(--text-color);
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+        margin: 0.25rem;
+        transition: all 0.3s ease;
+      }
+
+      .nav-pills .nav-link.active {
+        background-color: var(--accent-color);
+        color: white;
+      }
+
+      .tab-content {
+        padding: 1.5rem 0;
+      }
+
+      .methodology-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+      }
+
+      .formula {
+        background: #2c3e50;
+        color: white;
+        padding: 1rem;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        margin: 1rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="academic-header">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1>Data Mining Analysis Dashboard</h1>
+            <p class="lead">
+              Data Mining Based Movie Recommendation System - Analysis and
+              Evaluation
+            </p>
+            <p class="text-light opacity-75">
+              Bachelor's Thesis in Data Mining by Kerem Tokgöz - An in-depth
+              exploration of data mining concepts through recommendation
+              systems, featuring comprehensive data analysis, pattern
+              recognition, user behavior mining, and practical applications of
+              data mining techniques in movie recommendations.
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <a href="/" class="btn btn-outline-light">
+              <i class="fas fa-home"></i> Return to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <ul class="nav nav-pills mb-4" id="analysisTab" role="tablist">
+        <li class="nav-item">
+          <a
+            class="nav-link active"
+            data-bs-toggle="pill"
+            href="#anomalyAnalysis"
+          >
+            <i class="fas fa-exclamation-triangle"></i> Anomaly Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#patternAnalysis">
+            <i class="fas fa-project-diagram"></i> Pattern Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="pill" href="#clusteringAnalysis">
+            <i class="fas fa-object-group"></i> Clustering Analysis
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            data-bs-toggle="pill"
+            href="#distributionAnalysis"
+          >
+            <i class="fas fa-chart-bar"></i> Distribution Analysis
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Anomaly Analysis -->
+        <div class="tab-pane fade show active" id="anomalyAnalysis">
+          <div class="analysis-card">
+            <h2 class="section-title">Anomalous User Behavior Analysis</h2>
+
+            <div class="methodology-section">
+              <h4>Methodology & Academic Significance</h4>
+              <p>
+                This analysis employs the Isolation Forest algorithm, an
+                unsupervised machine learning approach, to detect anomalous user
+                behaviors in the MovieLens dataset. The algorithm operates in a
+                multidimensional feature space comprising:
+              </p>
+              <ul>
+                <li>
+                  <strong>Rating Frequency:</strong> Number of ratings per user
+                  (activity level)
+                </li>
+                <li>
+                  <strong>Rating Distribution:</strong> Mean and standard
+                  deviation of ratings (rating patterns)
+                </li>
+                <li>
+                  <strong>Movie Diversity:</strong> Number of unique movies
+                  rated (viewing breadth)
+                </li>
+              </ul>
+              <p class="mt-3">
+                The visualization plots users in a two-dimensional space of
+                rating count versus average rating, with anomalies highlighted
+                in red. These anomalies may represent:
+              </p>
+              <ul>
+                <li>Potentially biased rating behaviors</li>
+                <li>Unusual viewing patterns</li>
+                <li>
+                  Outlier user segments requiring special attention in
+                  recommendation systems
+                </li>
+              </ul>
+              <p class="mt-3">
+                <strong>Research Implications:</strong> Understanding anomalous
+                user behaviors is crucial for:
+              </p>
+              <ul>
+                <li>Improving recommendation system robustness</li>
+                <li>Detecting potential rating manipulation</li>
+                <li>
+                  Identifying unique user segments for personalization
+                  strategies
+                </li>
+              </ul>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="metric-card">
+                  <div class="metric-value" id="totalUsers">
+                    {% if report and report.anomaly_analysis and
+                    report.anomaly_analysis.anomaly_stats %} {{
+                    report.anomaly_analysis.anomaly_stats.total_users }} {% else
+                    %} 0 {% endif %}
+                  </div>
+                  <div class="metric-label">Total Users</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="metric-card">
+                  <div class="metric-value" id="anomalyCount">
+                    {% if report and report.anomaly_analysis and
+                    report.anomaly_analysis.anomaly_stats %} {{
+                    report.anomaly_analysis.anomaly_stats.anomaly_count }} {%
+                    else %} 0 {% endif %}
+                  </div>
+                  <div class="metric-label">Anomalous Behavior</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="metric-card">
+                  <div class="metric-value" id="normalCount">
+                    {% if report and report.anomaly_analysis and
+                    report.anomaly_analysis.anomaly_stats %} {{
+                    report.anomaly_analysis.anomaly_stats.normal_count }} {%
+                    else %} 0 {% endif %}
+                  </div>
+                  <div class="metric-label">Normal Behavior</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-container">
+              <div id="anomalyPlot"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pattern Analysis -->
+        <div class="tab-pane fade" id="patternAnalysis">
+          <div class="analysis-card">
+            <h2 class="section-title">Movie Watching Pattern Analysis</h2>
+
+            <div class="methodology-section">
+              <h4>Methodology & Academic Significance</h4>
+              <p>
+                This analysis utilizes Association Rule Mining through the
+                Apriori algorithm to uncover significant patterns in movie
+                consumption behavior. The methodology involves:
+              </p>
+              <ul>
+                <li>
+                  <strong>Binary Transaction Matrix:</strong> Converting ratings
+                  ≥4 into positive interactions
+                </li>
+                <li>
+                  <strong>Support Threshold:</strong> Minimum frequency of
+                  co-occurrence (10%)
+                </li>
+                <li>
+                  <strong>Confidence Metric:</strong> Conditional probability of
+                  movie co-watching
+                </li>
+                <li>
+                  <strong>Lift Value:</strong> Measure of rule strength beyond
+                  random chance
+                </li>
+              </ul>
+              <p class="mt-3">The network visualization represents:</p>
+              <ul>
+                <li>Nodes: Individual movies</li>
+                <li>Edges: Significant co-watching relationships</li>
+                <li>
+                  Edge Weights: Lift values indicating relationship strength
+                </li>
+              </ul>
+              <p class="mt-3">
+                <strong>Research Applications:</strong>
+              </p>
+              <ul>
+                <li>
+                  Content Strategy: Identifying successful movie combinations
+                </li>
+                <li>
+                  Recommendation Enhancement: Improving collaborative filtering
+                </li>
+                <li>
+                  Market Basket Analysis: Understanding viewer preferences
+                </li>
+                <li>
+                  Cross-Genre Analysis: Discovering unexpected viewing patterns
+                </li>
+              </ul>
+            </div>
+
+            <div class="chart-container">
+              <div id="patternNetwork"></div>
+            </div>
+
+            <div class="mt-4">
+              <h4>Top Association Rules</h4>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>If watched</th>
+                      <th>Then likely to watch</th>
+                      <th>Confidence</th>
+                      <th>Lift</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rulesTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clustering Analysis -->
+        <div class="tab-pane fade" id="clusteringAnalysis">
+          <div class="analysis-card">
+            <h2 class="section-title">User Clustering Analysis</h2>
+
+            <div class="methodology-section">
+              <h4>Methodology & Academic Significance</h4>
+              <p>
+                This analysis implements a dual-clustering approach using both
+                DBSCAN and K-means algorithms to segment users based on their
+                viewing behaviors. The methodology encompasses:
+              </p>
+              <ul>
+                <li>
+                  <strong>Feature Engineering:</strong>
+                  <ul>
+                    <li>Rating frequency and volume</li>
+                    <li>Rating distribution statistics</li>
+                    <li>Genre preferences</li>
+                    <li>Temporal patterns</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>Dimensionality Reduction:</strong> PCA for
+                  visualization
+                </li>
+                <li>
+                  <strong>Cluster Validation:</strong> Silhouette analysis
+                </li>
+              </ul>
+              <p class="mt-3">The visualizations present:</p>
+              <ul>
+                <li>
+                  <strong>DBSCAN Plot:</strong> Density-based clusters
+                  identifying core user groups and outliers
+                </li>
+                <li>
+                  <strong>K-means Plot:</strong> Centroid-based segmentation
+                  showing distinct user categories
+                </li>
+              </ul>
+              <p class="mt-3">
+                <strong>Academic Applications:</strong>
+              </p>
+              <ul>
+                <li>User Behavior Modeling: Understanding viewer segments</li>
+                <li>Personalization Strategies: Tailoring recommendations</li>
+                <li>Marketing Research: Targeting specific user groups</li>
+                <li>System Design: Optimizing for different user types</li>
+              </ul>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="chart-container">
+                  <div id="dbscanPlot"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="chart-container">
+                  <div id="kmeansPlot"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-4">
+                <div class="metric-card">
+                  <div class="metric-value" id="silhouetteScore">
+                    {% if report and report.clustering_analysis and
+                    report.clustering_analysis.clustering_metrics %} {{
+                    "%.3f"|format(report.clustering_analysis.clustering_metrics.kmeans_silhouette)
+                    }} {% else %} 0.000 {% endif %}
+                  </div>
+                  <div class="metric-label">Silhouette Score</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribution Analysis -->
+        <div class="tab-pane fade" id="distributionAnalysis">
+          <div class="analysis-card">
+            <h2 class="section-title">Rating Distribution Analysis</h2>
+
+            <div class="methodology-section">
+              <h4>Methodology & Academic Significance</h4>
+              <p>
+                This analysis provides a comprehensive statistical examination
+                of rating patterns in the MovieLens dataset, employing both
+                descriptive and inferential statistical methods:
+              </p>
+              <ul>
+                <li>
+                  <strong>Statistical Measures:</strong>
+                  <ul>
+                    <li>Central Tendency: Mean, Median</li>
+                    <li>Dispersion: Standard Deviation, Quartiles</li>
+                    <li>Distribution Shape: Skewness, Kurtosis</li>
+                  </ul>
+                </li>
+                <li>
+                  <strong>Normality Testing:</strong> Using D'Agostino-Pearson
+                  test
+                </li>
+                <li>
+                  <strong>Temporal Evolution:</strong> Rating patterns over time
+                </li>
+              </ul>
+              <p class="mt-3">The visualization shows:</p>
+              <ul>
+                <li>
+                  Actual rating distribution compared to theoretical normal
+                  distribution
+                </li>
+                <li>Density estimation for rating patterns</li>
+                <li>Quantile-Quantile plot for normality assessment</li>
+              </ul>
+              <p class="mt-3">
+                <strong>Research Implications:</strong>
+              </p>
+              <ul>
+                <li>
+                  Rating Bias Analysis: Understanding user rating tendencies
+                </li>
+                <li>Quality Assessment: Evaluating rating reliability</li>
+                <li>System Calibration: Adjusting recommendation algorithms</li>
+                <li>Temporal Trends: Tracking changes in user behavior</li>
+              </ul>
+            </div>
+
+            <div class="chart-container">
+              <div id="distributionPlot"></div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-6">
+                <h4>Basic Statistics</h4>
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td>Mean</td>
+                      <td>
+                        {% if report and report.distribution_analysis and
+                        report.distribution_analysis.distribution_stats %} {{
+                        "%.2f"|format(report.distribution_analysis.distribution_stats.mean)
+                        }} {% else %} 0.00 {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Standard Deviation</td>
+                      <td>
+                        {% if report and report.distribution_analysis and
+                        report.distribution_analysis.distribution_stats %} {{
+                        "%.2f"|format(report.distribution_analysis.distribution_stats.std)
+                        }} {% else %} 0.00 {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Median</td>
+                      <td>
+                        {% if report and report.distribution_analysis and
+                        report.distribution_analysis.distribution_stats %} {{
+                        "%.2f"|format(report.distribution_analysis.distribution_stats.median)
+                        }} {% else %} 0.00 {% endif %}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-md-6">
+                <h4>Normality Test</h4>
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td>p-value</td>
+                      <td>
+                        {% if report and report.distribution_analysis and
+                        report.distribution_analysis.normality_test %} {{
+                        "%.4f"|format(report.distribution_analysis.normality_test.p_value)
+                        }} {% else %} 0.0000 {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Is Normal</td>
+                      <td>
+                        {% if report and report.distribution_analysis and
+                        report.distribution_analysis.normality_test %} {{ "Yes"
+                        if report.distribution_analysis.normality_test.is_normal
+                        else "No" }} {% else %} No {% endif %}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      console.log("Starting dashboard initialization...");
+
+      // Plot the anomaly analysis
+      try {
+        const anomalyPlot = {{ report.anomaly_analysis.anomaly_plot|default({})|tojson }};
+        console.log("Anomaly plot data:", anomalyPlot ? "Present" : "Missing");
+
+        if (anomalyPlot && anomalyPlot.data && anomalyPlot.layout) {
+          console.log("Creating anomaly plot...");
+          Plotly.newPlot('anomalyPlot',
+            anomalyPlot.data,
+            anomalyPlot.layout,
+            {responsive: true}
+          ).then(() => {
+            console.log("Anomaly plot created successfully");
+          }).catch(error => {
+            console.error("Error creating anomaly plot:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error in anomaly plot section:", error);
+      }
+
+      // Plot the pattern network
+      try {
+        const patternNetwork = {{ report.pattern_analysis.pattern_network|default({})|tojson }};
+        console.log("Pattern network data:", patternNetwork ? "Present" : "Missing");
+
+        if (patternNetwork && patternNetwork.data && patternNetwork.layout) {
+          console.log("Creating pattern network plot...");
+          Plotly.newPlot('patternNetwork',
+            patternNetwork.data,
+            patternNetwork.layout,
+            {responsive: true}
+          ).then(() => {
+            console.log("Pattern network plot created successfully");
+          }).catch(error => {
+            console.error("Error creating pattern network plot:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error in pattern network section:", error);
+      }
+
+      // Plot DBSCAN clustering
+      try {
+        const dbscanPlot = {{ report.clustering_analysis.dbscan_plot|default({})|tojson }};
+        console.log("DBSCAN plot data:", dbscanPlot ? "Present" : "Missing");
+
+        if (dbscanPlot && dbscanPlot.data && dbscanPlot.layout) {
+          console.log("Creating DBSCAN plot...");
+          Plotly.newPlot('dbscanPlot',
+            dbscanPlot.data,
+            dbscanPlot.layout,
+            {responsive: true}
+          ).then(() => {
+            console.log("DBSCAN plot created successfully");
+          }).catch(error => {
+            console.error("Error creating DBSCAN plot:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error in DBSCAN plot section:", error);
+      }
+
+      // Plot K-means clustering
+      try {
+        const kmeansPlot = {{ report.clustering_analysis.kmeans_plot|default({})|tojson }};
+        console.log("K-means plot data:", kmeansPlot ? "Present" : "Missing");
+
+        if (kmeansPlot && kmeansPlot.data && kmeansPlot.layout) {
+          console.log("Creating K-means plot...");
+          Plotly.newPlot('kmeansPlot',
+            kmeansPlot.data,
+            kmeansPlot.layout,
+            {responsive: true}
+          ).then(() => {
+            console.log("K-means plot created successfully");
+          }).catch(error => {
+            console.error("Error creating K-means plot:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error in K-means plot section:", error);
+      }
+
+      // Plot distribution analysis
+      try {
+        const distributionPlot = {{ report.distribution_analysis.distribution_plot|default({})|tojson }};
+        console.log("Distribution plot data:", distributionPlot ? "Present" : "Missing");
+
+        if (distributionPlot && distributionPlot.data && distributionPlot.layout) {
+          console.log("Creating distribution plot...");
+          Plotly.newPlot('distributionPlot',
+            distributionPlot.data,
+            distributionPlot.layout,
+            {responsive: true}
+          ).then(() => {
+            console.log("Distribution plot created successfully");
+          }).catch(error => {
+            console.error("Error creating distribution plot:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error in distribution plot section:", error);
+      }
+
+      // Populate association rules table
+      try {
+        const rulesTableBody = document.getElementById('rulesTableBody');
+        const rules = {{ report.pattern_analysis.top_rules|default([])|tojson }};
+        console.log("Number of association rules:", rules ? rules.length : 0);
+
+        if (rules && rules.length > 0) {
+          console.log("Populating rules table...");
+          rules.forEach(rule => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${rule.antecedents.join(', ')}</td>
+              <td>${rule.consequents.join(', ')}</td>
+              <td>${(rule.confidence * 100).toFixed(1)}%</td>
+              <td>${rule.lift.toFixed(2)}</td>
+            `;
+            rulesTableBody.appendChild(row);
+          });
+          console.log("Rules table populated successfully");
+        }
+      } catch (error) {
+        console.error("Error in association rules section:", error);
+      }
+
+      console.log("Dashboard initialization completed");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      MovieLens Recommender - Content-Based Movie Recommendation System
+    </title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #e74c3c;
+        --accent-color: #3498db;
+        --bg-color: #f5f6fa;
+        --card-bg: #ffffff;
+        --text-color: #2d3436;
+      }
+
+      body {
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+      }
+
+      .hero-section {
+        background: linear-gradient(135deg, var(--primary-color), #34495e);
+        color: white;
+        padding: 6rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-section::after {
+        content: "";
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: var(--bg-color);
+        clip-path: polygon(0 50%, 100% 0, 100% 100%, 0% 100%);
+      }
+
+      .algorithm-section {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 2rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      }
+
+      .algorithm-card {
+        border-left: 4px solid var(--accent-color);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        background: #f8f9fa;
+        border-radius: 0 15px 15px 0;
+        transition: transform 0.3s ease;
+      }
+
+      .algorithm-card:hover {
+        transform: translateX(10px);
+      }
+
+      .formula {
+        font-family: "Courier New", monospace;
+        background: var(--primary-color);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin: 1.5rem 0;
+        overflow-x: auto;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .complexity {
+        display: inline-block;
+        background: var(--accent-color);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 1rem 0;
+        box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+      }
+
+      .search-section {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 3rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      }
+
+      .select2-container {
+        width: 100% !important;
+      }
+
+      .select2-container .select2-selection--single {
+        height: 60px;
+        border: 2px solid #eee;
+        border-radius: 15px;
+        padding: 15px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+      }
+
+      .select2-container--default .select2-selection--single:hover {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+      }
+
+      .select2-container--default
+        .select2-selection--single
+        .select2-selection__rendered {
+        line-height: 28px;
+        color: var(--text-color);
+        font-size: 1.1rem;
+      }
+
+      .select2-container--default
+        .select2-selection--single
+        .select2-selection__arrow {
+        height: 58px;
+      }
+
+      .movie-grid {
+        margin-top: 3rem;
+      }
+
+      .movie-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        height: 100%;
+      }
+
+      .movie-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .movie-poster {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .movie-card:hover .movie-poster {
+        transform: scale(1.05);
+      }
+
+      .movie-info {
+        padding: 1rem;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.95),
+          rgba(255, 255, 255, 1)
+        );
+      }
+
+      .movie-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+      }
+
+      .similarity-score {
+        background: var(--accent-color);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+      }
+
+      .genre-tags {
+        margin-top: 0.5rem;
+      }
+
+      .genre-tag {
+        background: #f0f2f5;
+        color: var(--text-color);
+        padding: 0.3rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+      }
+
+      .genre-tag:hover {
+        background: var(--accent-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        display: none;
+      }
+
+      .loading i {
+        color: var(--accent-color);
+        font-size: 3rem;
+      }
+
+      .stats-container {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 3rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--accent-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: var(--text-color);
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .recommendations {
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background: var(--accent-color);
+        border-radius: 2px;
+      }
+
+      .analytics-btn {
+        display: inline-block;
+        background: var(--accent-color);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 500;
+        margin-top: 2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+      }
+
+      .analytics-btn:hover {
+        background: white;
+        color: var(--accent-color);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+      }
+
+      .analytics-btn i {
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-section">
+      <div class="container">
+        <h1 class="display-3 mb-4">
+          Data Mining Based Movie Recommendation System
+        </h1>
+        <p class="lead fs-3">
+          An intelligent content-based recommendation engine utilizing advanced
+          data mining techniques
+        </p>
+        <div class="thesis-info mb-4">
+          <p class="lead text-light mb-2">
+            Bachelor's Thesis in Data Mining by Kerem Tokgöz
+          </p>
+          <p class="text-light opacity-75">
+            This thesis project in Data Mining explores advanced recommendation
+            systems, data mining techniques, and machine learning algorithms in
+            the context of movie recommendations. The system demonstrates
+            practical applications of data mining concepts through content-based
+            filtering, user behavior analysis, and comprehensive data analytics.
+          </p>
+        </div>
+        <div class="d-flex gap-3">
+          <a href="/analytics" class="analytics-btn">
+            <i class="fas fa-chart-bar"></i> View Analytics Dashboard
+          </a>
+          <a href="/academic-dashboard" class="analytics-btn">
+            <i class="fas fa-graduation-cap"></i> Academic Analysis Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="stats-container">
+        <h2 class="section-title">About the Dataset</h2>
+        <p class="lead mb-4">
+          This recommendation system is built on the MovieLens dataset, a rich
+          collection of movie ratings and metadata that enables sophisticated
+          content-based filtering and analysis:
+        </p>
+        <div class="row">
+          <div class="col-md-3 stat-item">
+            <div class="stat-number">9,742+</div>
+            <div class="stat-label">Movies</div>
+            <p class="small text-muted mt-2">From various genres and years</p>
+          </div>
+          <div class="col-md-3 stat-item">
+            <div class="stat-number">610+</div>
+            <div class="stat-label">Users</div>
+            <p class="small text-muted mt-2">Active rating contributors</p>
+          </div>
+          <div class="col-md-3 stat-item">
+            <div class="stat-number">100K+</div>
+            <div class="stat-label">Ratings</div>
+            <p class="small text-muted mt-2">
+              User-generated ratings (1-5 stars)
+            </p>
+          </div>
+          <div class="col-md-3 stat-item">
+            <div class="stat-number">20+</div>
+            <div class="stat-label">Genres</div>
+            <p class="small text-muted mt-2">Diverse movie categories</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-section">
+        <h2 class="section-title">Find Similar Movies</h2>
+        <p class="lead mb-4">
+          Search for any movie in our database and discover similar films based
+          on genres, ratings, and popularity metrics.
+        </p>
+        <div class="row justify-content-center">
+          <div class="col-md-10">
+            <label class="form-label h4 mb-4">Search for a Movie</label>
+            <select id="movieSearch" class="form-control"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p class="mt-3 fs-5">Generating recommendations...</p>
+      </div>
+
+      <div id="recommendations" class="recommendations movie-grid">
+        <!-- Recommendations will be inserted here -->
+      </div>
+
+      <div class="algorithm-section">
+        <h2 class="section-title">Technical Implementation</h2>
+        <div class="algorithm-card">
+          <h3>Content-Based Filtering Algorithm</h3>
+          <p class="lead">
+            Our recommendation system employs a sophisticated content-based
+            filtering approach that combines multiple factors to generate
+            personalized movie recommendations:
+          </p>
+
+          <h4 class="mt-4">Key Components:</h4>
+          <ul class="fs-5">
+            <li>
+              <strong>Genre Similarity:</strong> Using Jaccard similarity
+              coefficient to measure genre overlap between movies
+            </li>
+            <li>
+              <strong>Rating Patterns:</strong> Analyzing historical rating
+              distributions and user preferences
+            </li>
+            <li>
+              <strong>Popularity Metrics:</strong> Incorporating movie
+              popularity as a weighted factor
+            </li>
+          </ul>
+
+          <div class="formula">
+            similarity_score = 0.4 * genre_similarity + 0.4 * rating_score + 0.2
+            * popularity
+          </div>
+
+          <h4 class="mt-4">Algorithm Details:</h4>
+          <ul class="fs-5">
+            <li>
+              <strong>Genre Similarity (40%):</strong> Jaccard similarity
+              between movie genres
+            </li>
+            <li>
+              <strong>Rating Score (40%):</strong> Normalized average user
+              ratings
+            </li>
+            <li>
+              <strong>Popularity (20%):</strong> Engagement metrics based on
+              rating count
+            </li>
+          </ul>
+
+          <p class="complexity">
+            Time Complexity: O(n) where n is the number of movies
+          </p>
+        </div>
+
+        <div class="algorithm-card">
+          <h3>Implementation Features</h3>
+          <ul class="fs-5">
+            <li>Dynamic similarity threshold adjustment</li>
+            <li>Efficient genre-based indexing</li>
+            <li>Cached rating calculations</li>
+            <li>Real-time recommendation generation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#movieSearch").select2({
+          placeholder: "Enter a movie title...",
+          minimumInputLength: 2,
+          ajax: {
+            url: "/search",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+              return {
+                query: params.term,
+              };
+            },
+            processResults: function (data) {
+              return {
+                results: data.map(function (movie) {
+                  return {
+                    id: movie.id,
+                    text: movie.title,
+                    poster: movie.poster_url,
+                    genres: movie.genres,
+                  };
+                }),
+              };
+            },
+            cache: true,
+          },
+          templateResult: formatMovie,
+          templateSelection: formatMovieSelection,
+        });
+
+        function formatMovie(movie) {
+          if (!movie.id) return movie.text;
+
+          var $container = $(
+            '<div class="select2-result d-flex align-items-center">' +
+              '<div class="select2-result__poster me-3">' +
+              '<img src="' +
+              (movie.poster || "https://via.placeholder.com/60x90") +
+              '" style="width: 60px; height: 90px; object-fit: cover; border-radius: 10px;">' +
+              "</div>" +
+              '<div class="select2-result__info">' +
+              '<div class="select2-result__title h5 mb-2">' +
+              movie.text +
+              "</div>" +
+              '<div class="select2-result__genres" style="font-size: 0.9em; color: #666;">' +
+              movie.genres +
+              "</div>" +
+              "</div>" +
+              "</div>"
+          );
+
+          return $container;
+        }
+
+        function formatMovieSelection(movie) {
+          if (!movie.id) return movie.text;
+          return movie.text;
+        }
+
+        $("#movieSearch").on("select2:select", function (e) {
+          var movieId = e.params.data.id;
+          $(".loading").show();
+          $("#recommendations").empty();
+
+          $.get("/recommend", { movieId: movieId })
+            .done(function (data) {
+              $(".loading").hide();
+              displayRecommendations(data.recommendations);
+            })
+            .fail(function (error) {
+              $(".loading").hide();
+              alert("Error while fetching recommendations.");
+            });
+        });
+
+        function displayRecommendations(recommendations) {
+          var $container = $("#recommendations");
+          $container.empty();
+
+          if (recommendations.length === 0) {
+            $container.append(
+              '<div class="text-center py-5"><h3>No recommendations found.</h3></div>'
+            );
+            return;
+          }
+
+          var $row = $('<div class="row g-3"></div>');
+
+          recommendations.forEach(function (movie) {
+            var card = `
+              <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="movie-card">
+                  <img src="${
+                    movie.poster_url || "https://via.placeholder.com/300x450"
+                  }" class="movie-poster" alt="${movie.title}">
+                  <div class="movie-info">
+                    <h3 class="movie-title">${movie.title}</h3>
+                    <div class="similarity-score">
+                      <i class="fas fa-percentage"></i> ${Math.round(
+                        parseFloat(movie.similarity_score) * 100
+                      )}% Similarity
+                    </div>
+                    <div class="genre-tags">
+                      ${movie.genres
+                        .split("|")
+                        .map(
+                          (genre) => `<span class="genre-tag">${genre}</span>`
+                        )
+                        .join("")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            $row.append(card);
+          });
+
+          $container.append($row);
+        }
+      });
+    </script>
+  </body>
+</html>
